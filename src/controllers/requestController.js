@@ -7,17 +7,17 @@ exports.createRequest = async (req, res) => {
     const request = await newRequest.save();
     res.json(request);
   } catch (err) {
-    res.status(500).send("Error al guardar solicitud");
+    res.next(err).send("Error al guardar solicitud");
   }
 };
 
 // Obtener todas (Solo admin)
-exports.getAllRequests = async (req, res) => {
+exports.getAllRequests = async (req, res, next) => {
   try {
     const requests = await Request.find().sort({ fecha: -1 });
     res.json(requests);
   } catch (err) {
-    res.status(500).send("Error al obtener datos");
+    next(err); // Delegar al manejador de errores global
   }
 };
 
@@ -33,7 +33,7 @@ exports.updateStatus = async (req, res) => {
     await request.save();
     res.json(request);
   } catch (err) {
-    res.status(500).send("Error al actualizar");
+    next(err); // Delegar al manejador de errores global
   }
 };
 
@@ -41,13 +41,11 @@ exports.updateStatus = async (req, res) => {
 exports.deleteRequest = async (req, res) => {
   try {
     let request = await Request.findById(req.params.id);
-    if (!request)
-      return res.status(404).json({ msg: "Solicitud no encontrada" });
+    if (!request) return next(new Error("Solicitud no encontrada"));
 
     await Request.findByIdAndDelete(req.params.id);
     res.json({ msg: "Solicitud eliminada" });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error al eliminar");
+    next(err); // Delegar al manejador de errores global
   }
 };

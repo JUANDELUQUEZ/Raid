@@ -16,7 +16,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ msg: "Credenciales inválidas" });
 
     // 3. Crear y devolver Token JWT
-    const payload = { user: { id: user.id } };
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role, // Asumiendo que tu modelo User tiene la propiedad 'role'
+      },
+    };
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
